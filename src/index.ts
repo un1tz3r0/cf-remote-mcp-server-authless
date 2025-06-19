@@ -35,7 +35,7 @@ export class MyMCP extends McpAgent {
 					result = tree.getValue(path);
 				}
 				return ({
-					content: [{ type: "text", text: JSON.stringify(value) }],
+					content: [{ type: "text", text: JSON.stringify(result) }],
 				});
 			}
 		);
