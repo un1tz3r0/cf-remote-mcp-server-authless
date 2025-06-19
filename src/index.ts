@@ -1,26 +1,91 @@
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { getEnv } from '@repo/mcp-common/src/env'
+import { KVTreeStorage } from "./cfkvtree.js";
+
+interface Env {
+	globaldata: KVNamespace
+};
+
+const env = getEnv<Env>();
 
 // Define our MCP agent with tools
 export class MyMCP extends McpAgent {
 	server = new McpServer({
-		name: "Authless Calculator",
+		name: "Global Shared KV Storage",
 		version: "1.0.0",
 	});
 
+	constructor(ctx: DurableObjectState, env: Env) {
+		super(ctx, env)
+	}
+	
 	async init() {
-		// Simple addition tool
+		// get a value at a given path in the global kv storage
 		this.server.tool(
-			"add",
-			{ a: z.number(), b: z.number() },
-			async ({ a, b }) => ({
-				content: [{ type: "text", text: String(a + b) }],
-			})
+			"getValue",
+			{ path: Array<String> },
+			async ({ path }) => {
+				const tree = KVTreeStorage(this.env['globaldata']);
+				tree.initializeRoot();
+				var result = null;
+				if(tree.nodeExists(path)) {
+					result = tree.getValue(path);
+				}
+				return ({
+					content: [{ type: "text", text: JSON.stringify(value) }],
+				});
+			}
+		);
+
+		// store a value at the given path in the global kv storage
+		this.server.tool(
+			"setValue",
+			{ path: Array<String>, value: String },
+			async ({ path, value }) => {
+				const tree = KVTreeStorage(this.env['globaldata']);
+				tree.initializeRoot();
+				var result = null;
+				var replaced = false;
+				var stored = true;
+				if(tree.nodeExists(path)) {
+					result = tree.getValue(path);
+					if(result != value) {
+						replaced = true;
+					} else {
+						stored = false;
+					}
+				}
+				if(stored)
+				{
+					tree.setValue(path, value);
+				}
+				return ({
+					content: [{ type: "text", text: JSON.stringify({'priorValue': result, 'stored': stored, 'replaced': replaced}) }],
+				});
+			}
+		);
+
+		// store a value at the given path in the global kv storage
+		this.server.tool(
+			"getChildren",
+			{ path: Array<String> },
+			async ({ path }) => {
+				const tree = KVTreeStorage(this.env['globaldata']);
+				tree.initializeRoot();
+				var result = null;
+				if(tree.nodeExists(path)) {
+					result = tree.getChildren(path);
+				}
+				return ({
+					content: [{ type: "text", text: JSON.stringify(result) }],
+				});
+			}
 		);
 
 		// Calculator tool with multiple operations
-		this.server.tool(
+		/*this.server.tool(
 			"calculate",
 			{
 				operation: z.enum(["add", "subtract", "multiply", "divide"]),
@@ -55,6 +120,7 @@ export class MyMCP extends McpAgent {
 				return { content: [{ type: "text", text: String(result) }] };
 			}
 		);
+  		*/
 	}
 }
 
@@ -71,5 +137,6 @@ export default {
 		}
 
 		return new Response("Not found", { status: 404 });
-	},
-};
+    },
+
+} satisfies ExportedHandler<{ globaldata: KVNamespace }>;
