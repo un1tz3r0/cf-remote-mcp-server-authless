@@ -2,7 +2,7 @@ import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 //import { getEnv } from '@repo/mcp-common/src/env'
-import { KVTreeStorage } from "./cfkvtree.js";
+import KVTreeStorage from "./cfkvtree.js";
 
 /*interface Env {
 	globaldata: KVNamespace
