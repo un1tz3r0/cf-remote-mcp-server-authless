@@ -3,6 +3,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 //import { getEnv } from '@repo/mcp-common/src/env'
 import KVTreeStorage from "./cfkvtree.js";
+import { PathParser } from "./pathparser.js";
 
 /*interface Env {
 	globaldata: KVNamespace
@@ -26,13 +27,14 @@ export class MyMCP extends McpAgent {
 		// get a value at a given path in the global kv storage
 		this.server.tool(
 			"getValue",
-			{ path: Array<String> },
+			{ path: String },
 			async ({ path }) => {
+				const pathArray = new PathParser().parsePath(path);
 				const tree = new KVTreeStorage(this.env['globaldata']);
 				tree.initializeRoot();
 				var result = null;
-				if(tree.nodeExists(path)) {
-					result = tree.getValue(path);
+				if(tree.nodeExists(pathArr)) {
+					result = tree.getValue(pathArr);
 				}
 				return ({
 					content: [{ type: "text", text: JSON.stringify(result) }],
@@ -43,15 +45,16 @@ export class MyMCP extends McpAgent {
 		// store a value at the given path in the global kv storage
 		this.server.tool(
 			"setValue",
-			{ path: Array<String>, value: String },
+			{ path: String, value: String },
 			async ({ path, value }) => {
+				const pathArr = new PathParser.parsePath(path);
 				const tree = new KVTreeStorage(this.env['globaldata']);
 				tree.initializeRoot();
 				var result = null;
 				var replaced = false;
 				var stored = true;
-				if(tree.nodeExists(path)) {
-					result = tree.getValue(path);
+				if(tree.nodeExists(pathArr)) {
+					result = tree.getValue(pathArr);
 					if(result != value) {
 						replaced = true;
 					} else {
@@ -60,7 +63,7 @@ export class MyMCP extends McpAgent {
 				}
 				if(stored)
 				{
-					tree.setValue(path, value);
+					tree.setValue(pathArr, value);
 				}
 				return ({
 					content: [{ type: "text", text: JSON.stringify({'priorValue': result, 'stored': stored, 'replaced': replaced}) }],
@@ -71,13 +74,14 @@ export class MyMCP extends McpAgent {
 		// store a value at the given path in the global kv storage
 		this.server.tool(
 			"getChildren",
-			{ path: Array<String> },
+			{ path: String },
 			async ({ path }) => {
+				const pathArr = new PathParser.parsePath(path);
 				const tree = new KVTreeStorage(this.env['globaldata']);
 				tree.initializeRoot();
 				var result = null;
-				if(tree.nodeExists(path)) {
-					result = tree.getChildren(path);
+				if(tree.nodeExists(pathArr)) {
+					result = tree.getChildren(pathArr);
 				}
 				return ({
 					content: [{ type: "text", text: JSON.stringify(result) }],
