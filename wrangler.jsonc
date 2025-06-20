@@ -22,12 +22,10 @@
 			}
 		]
 	},
-	"kv_namespaces": [
-		{
-			"binding": "USERS_NOTIFICATION_CONFIG",
-			"id": "<BINDING_ID>"
-		}
-	],
+	"kv_namespaces": [{
+		"binding": "globaldata",
+		"id": "25a3c1871af64cb88a2304713b4d9819"
+	}],
 	"observability": {
 		"enabled": true
 	}
