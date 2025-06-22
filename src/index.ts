@@ -29,7 +29,7 @@ export class MyMCP extends McpAgent {
 			"getValue",
 			{ path: String },
 			async ({ path }) => {
-				const pathArray = new PathParser().parsePath(path);
+				const pathArr = new PathParser().parsePath(path);
 				const tree = new KVTreeStorage(this.env['globaldata']);
 				tree.initializeRoot();
 				var result = null;
@@ -47,7 +47,7 @@ export class MyMCP extends McpAgent {
 			"setValue",
 			{ path: String, value: String },
 			async ({ path, value }) => {
-				const pathArr = new PathParser.parsePath(path);
+				const pathArr = new PathParser().parsePath(path);
 				const tree = new KVTreeStorage(this.env['globaldata']);
 				tree.initializeRoot();
 				var result = null;
@@ -76,7 +76,7 @@ export class MyMCP extends McpAgent {
 			"getChildren",
 			{ path: String },
 			async ({ path }) => {
-				const pathArr = new PathParser.parsePath(path);
+				const pathArr = new PathParser().parsePath(path);
 				const tree = new KVTreeStorage(this.env['globaldata']);
 				tree.initializeRoot();
 				var result = null;
